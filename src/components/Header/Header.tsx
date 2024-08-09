@@ -39,7 +39,8 @@ const Header: React.FC = () => {
         <TouchableOpacity onPress={handleImagePress}>
           <Image
             source={require("../../assets/img/logo.png")}
-            style={styles.logo}
+            style={styles.logo}  
+            resizeMode="contain"    
           />
         </TouchableOpacity>
       </View>
@@ -109,11 +110,13 @@ const styles = StyleSheet.create({
   headerLogo: {
     justifyContent: "center",
     alignItems: "center",
+    paddingLeft: 8,
   },
   logo: {
     width: 260,
     height: 60,
     borderBottomRightRadius: 5,
+    backgroundColor: "#3E3E3E",
   },
   iconCircle: {
     justifyContent: "center",
