@@ -44,12 +44,12 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
     fetchNumeroMesa();
   }, []);
 
   useEffect(() => {
     if (numeroMesa !== null) {
+      setIsLoading(true);
       fetchCartItems(numeroMesa);
     }
     setTimeout(() => {
