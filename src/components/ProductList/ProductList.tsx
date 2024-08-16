@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, RefreshControl, SafeAreaView } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from 'lottie-react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import ProductSection from "../ProductSection/ProductSection";
 import { getProdutos, getProdutosPromocoes } from "../../services/produtoService";
 import { Produto } from "../../@types/Produto";
@@ -69,7 +70,7 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchProdutos} />
           }
-          estimatedItemSize={100} // Tamanho estimado de cada item para melhor performance
+          estimatedItemSize={20} // Tamanho estimado de cada item para melhor performance
           contentContainerStyle={styles.flashListContentContainer}
         />
       )}

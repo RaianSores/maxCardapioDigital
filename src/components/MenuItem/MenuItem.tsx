@@ -9,7 +9,7 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon, title }) => {
   return (
     <TouchableOpacity style={styles.menuListItem}>
-      <Image source={icon} style={styles.menuListItemPhoto} />
+      <Image source={icon} style={styles.menuListItemPhoto} resizeMode="contain"/>
       <Text style={styles.menuListItemTitle}>{title}</Text>
     </TouchableOpacity>
   );

@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { formatPrice } from "../../utils/format";
+import { FONTSIZE } from "../../theme/theme";
 
 type ProductCardProps = {
   image: string;
@@ -27,10 +29,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Image
           source={{ uri: `data:image/png;base64,${base64Clean}` }}
           style={styles.productCardPhoto}
+          resizeMode="cover"
         />
       );
     } else {
-      return <Image source={defaultImage} style={styles.productCardPhoto} />;
+      return <Image
+        source={defaultImage}
+        style={styles.productCardPhoto}
+        resizeMode="contain"
+      />;
     }
   };
   const temPromocao = !!priceDiscount;
@@ -55,21 +62,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {priceDiscount && <Text style={styles.priceFinal}>{formatPrice(priceDiscount)}</Text>}
         </View>
       </View>
-
     </View >
   );
 };
 
 const styles = StyleSheet.create({
   productCard: {
+    display: "flex",
     backgroundColor: "#E0DCD9",
     borderRadius: 5,
     color: "#000",
-    display: "flex",
     flexDirection: "row",
     alignItems: "flex-start",
-    padding: 4,
-    gap: 10,
+    padding: 6,
+    gap: wp('1%'),
   },
   productCardPhoto: {
     justifyContent: "center",
@@ -77,51 +83,49 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     overflow: "hidden",
-    height: 120,
-    width: 100,
-    maxWidth: "100%",
-    maxHeight: 120,
-    objectFit: "contain",
+    height: hp('22%'),
+    width: wp('13%'),
+    maxWidth: wp('13%'),
+    maxHeight: hp('22%'),
   },
-  productCardImage: {},
   productCardInfor: {
+    flex: 1,
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: 10,
-    fontSize: 14,
-    flex: 1,
+    gap: wp('1%'),
+    fontSize: FONTSIZE.size_16,
     color: "#46423F",
   },
   productCardTitle: {
-    fontSize: 18,
+    fontSize: FONTSIZE.size_18,
     fontWeight: "700",
     color: "#46423F",
   },
   productCardAbout: {
     flex: 1,
-    fontSize: 18,
+    fontSize: FONTSIZE.size_18,
     color: "#46423F",
   },
   priceContainer: {
     flexDirection: 'column',
     alignItems: 'flex-end',
-    marginTop: 2,
+    marginRight: 10,
   },
   productCardPrice: {
-    fontSize: 18,
+    fontSize: FONTSIZE.size_18,
     fontWeight: 'bold',
     color: '#B3B6BB',
     marginRight: 8,
   },
   priceDiscount: {
-    fontSize: 18,
+    fontSize: FONTSIZE.size_18,
     textDecorationLine: 'line-through',
     color: '#52555A',
   },
   priceFinal: {
     fontWeight: "bold",
-    fontSize: 23,
+    fontSize: FONTSIZE.size_24,
     color: "#46423F",
   },
 });

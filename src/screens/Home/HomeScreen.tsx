@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import Header from "../components/Header/Header";
-import Menu from "../components/Menu/Menu";
-import ProductList from "../components/ProductList/ProductList";
+import Header from "../../components/Header/Header";
+import Menu from "../../components/Menu/Menu";
+import ProductList from "../../components/ProductList/ProductList";
 
 const HomeScreen = () => {
   const [selectedGroupId, setSelectedGroupId] = useState(0);

@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   TextInput,
   Modal,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from 'lottie-react-native';
@@ -23,8 +23,7 @@ import { IRequestAccount } from "../@types/Venda";
 import * as Icons from 'react-native-feather';
 import showToast from "../utils/ToastUtil";
 import { COLORS, FONTFAMILY, FONTSIZE } from '../theme/theme';
-
-const { width, height } = Dimensions.get('window');
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const {
@@ -32,11 +31,11 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     totalPedido,
     totalServico,
     numeroMesa,
+    antecipacao,
     calcularTotais,
-    fetchNumeroMesa,
     fetchCartItems,
-    antecipacao, 
-    setAntecipacao
+    fetchNumeroMesa,
+    setAntecipacao,
   } = useContext(CartContext);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,51 +43,32 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    fetchNumeroMesa();
+    init();
   }, []);
 
   useEffect(() => {
+    calcularTotais();
+  }, [cartItems]);
+
+  async function init() {
+    fetchNumeroMesa();
     if (numeroMesa !== null) {
       setIsLoading(true);
       fetchCartItems(numeroMesa);
     }
     setTimeout(() => {
       setIsLoading(false);
-    }, 800)
-  }, [numeroMesa]);
-
-  useEffect(() => {
-    calcularTotais();
-  }, [cartItems]);
-
-
-  const renderItemImage = (item: any) => {
-    if (item.imagem) {
-      return (
-        <Image
-          source={{ uri: `data:image/png;base64,${item.imagem}` }}
-          style={styles.invoiceImage}
-          resizeMode="cover"
-        />
-      );
-    } else {
-      return (
-        <Image
-          source={require("../assets/img/sem-foto.jpg")}
-          style={styles.invoiceImage}
-          resizeMode="cover"
-        />
-      );
-    }
+    }, 800);
   };
 
   async function solicitaContaClick() {
     try {
       fetchUserData();
+      const idVendedor = await AsyncStorage.getItem("idVendedor");
       const foodVenda: IRequestAccount = {
         numero: numeroMesa!,
         tipo: 'M',
-        atendente: 19,
+        atendente: parseInt(idVendedor!),
       };
 
       await solicitarConta(foodVenda);
@@ -109,28 +89,6 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
   };
 
-  const renderCartItem = ({ item }: { item: any }) => {
-    return (
-      <>
-        <View style={styles.actionCardInvoiceTableRow}>
-          <View style={styles.tableCol}>{renderItemImage(item)}</View>
-          <View style={[styles.tableCol, styles.actionCardInvoiceTableTitle]}>
-            <Text style={{ color: "#46423F", fontSize: 16, fontWeight: "bold", }}>{item.descricaoProd}</Text>
-          </View>
-          <View style={styles.tableCol}>
-            <Text style={{ color: "#46423F", fontSize: 16, fontWeight: "bold", }}> {formatPrice(item.valorTotal)}</Text>
-          </View>
-          <View style={styles.tableCol}>
-            <Text style={{ color: "#46423F", fontSize: 16, fontWeight: "bold", }}>x {item.qtde}</Text>
-          </View>
-          <View style={styles.tableCol}>
-            <Text style={{ color: "#46423F", fontSize: 16, fontWeight: "bold", }}>{formatPrice(item.valorTotal * item.qtde)}</Text>
-          </View>
-        </View>
-      </>
-    )
-  };
-
   const closeModal = () => {
     setShowModal(false);
     if (showModal && antecipacao !== '') {
@@ -142,18 +100,58 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     setShowModal(true);
   };
 
-  const handleMonetaryValueChange = (text: string) => {
-    const numericValue = text.replace(/\D/g, '');
-    const formattedValue = (Number(numericValue) / 100).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }); 
-    setAntecipacao(formattedValue);
+  const renderItemImage = (item: any) => {
+    if (item.imagem) {
+      return (
+        <Image
+          source={{ uri: `data:image/png;base64,${item.imagem}` }}
+          style={styles.invoiceImage}
+        />
+      );
+    } else {
+      return (
+        <Image
+          source={require("../assets/img/sem-foto.jpg")}
+          style={styles.invoiceImage}
+          resizeMode="contain"
+        />
+      );
+    }
   };
-  
+
+  const renderCartItem = ({ item }: { item: any }) => {
+    return (
+      <>
+        <View style={styles.actionCardInvoiceTableRow}>
+          <View style={styles.tableCol}>{renderItemImage(item)}</View>
+          <View
+            style={[
+              styles.tableColLeft,
+              styles.actionCardInvoiceTableTitle,
+            ]}
+          >
+            <Text style={styles.regTable}>{item.descricaoProd}</Text>
+          </View>
+          <View style={styles.tableColRigth}>
+            <Text style={styles.regTable}>
+              {formatPrice(item.valorTotal)}
+            </Text>
+          </View>
+          <View style={styles.tableColRigth}>
+            <Text style={styles.regTable}>x {item.qtde}</Text>
+          </View>
+          <View style={styles.tableColRigth}>
+            <Text style={styles.regTable}>
+              {formatPrice(item.valorTotal * item.qtde)}
+            </Text>
+          </View>
+        </View>
+      </>
+    )
+  };
 
   const renderModal = () => (
-    <Modal visible={showModal} animationType="fade" transparent>
+    <Modal visible={showModal} animationType="fade" transparent={true} >
       <View style={styles.ModalContainer}>
         <View style={styles.ModalContent}>
           <Text style={styles.ModalText}>Informe o Valor da Antecipação</Text>
@@ -173,10 +171,10 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
           <View style={styles.ModalContainerButton}>
             <View style={styles.ModalButtonCancelar}>
-              <TouchableOpacity onPress={() => { 
-                  setAntecipacao('');
-                  closeModal();
-                }}>
+              <TouchableOpacity onPress={() => {
+                setAntecipacao('');
+                closeModal();
+              }}>
                 <Text style={styles.ModalTextButton}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -215,62 +213,82 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         ) : (
           <>
             <View style={styles.actionCard}>
-              <FlashList
-                data={cartItems}
-                renderItem={renderCartItem}
-                keyExtractor={(item, index) => index.toString()}
-                refreshControl={
-                  <RefreshControl refreshing={refreshing} onRefresh={() => fetchCartItems(numeroMesa!)} />
-                }
-                estimatedItemSize={50}
-                contentContainerStyle={styles.flashListContentContainer}
-              />
-              <View style={styles.actionCardInvoiceFooter}>
-                <View style={styles.actionCardInvoiceFooterSum}>
-                  <Text style={styles.title}>Total Pedido: </Text>
-                  <Text style={styles.price}>
-                    {formatPrice(totalPedido)}
-                  </Text>
-                </View>
-                <View style={styles.actionCardInvoiceFooterService}>
-                  <Text style={styles.title}>+Serviço: </Text>
-                  <Text style={styles.price}>{formatPrice(totalServico)}</Text>
-                </View>
-                <View style={styles.actionCardInvoiceFooterTotal}>
-                  <Text style={styles.title}>Total final: </Text>
-                  <Text style={styles.price}>
-                    {formatPrice(totalPedido)}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => {
-                    setAntecipacao('');
-                    openModal()
-                  }}
-                  style={styles.btnSecondary}
-                >
-                  <Icon
-                    name="qrcode"
-                    size={25}
-                    color="#fff"
-                    style={{ marginRight: 5 }}
+              {cartItems.length > 0 ? (
+                <>
+                  <FlashList
+                    data={cartItems}
+                    renderItem={renderCartItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    refreshControl={
+                      <RefreshControl refreshing={refreshing} onRefresh={() => fetchCartItems(numeroMesa!)} />
+                    }
+                    estimatedItemSize={50}
+                    contentContainerStyle={styles.flashListContentContainer}
                   />
-                  <Text style={styles.btnText}>Antecipação PIX</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => solicitaContaClick()}
-                  style={styles.btnPrimary}
-                >
-                  <Icons.CheckSquare
-                    strokeWidth={2}
-                    height={25}
-                    width={30}
-                    stroke="#FFF"
-                    style={{ marginRight: 5 }}
-                  />
-                  <Text style={styles.btnText}>Pedir Conta</Text>
-                </TouchableOpacity>
-              </View>
+                  <View style={styles.actionCardInvoiceFooter}>
+                    <View style={styles.actionCardInvoiceFooterSum}>
+                      <Text style={styles.title}>Total Pedido: </Text>
+                      <Text style={styles.price}>
+                        {formatPrice(totalPedido)}
+                      </Text>
+                    </View>
+                    <View style={styles.actionCardInvoiceFooterService}>
+                      <Text style={styles.title}>+Serviço: </Text>
+                      <Text style={styles.price}>{formatPrice(totalServico)}</Text>
+                    </View>
+                    <View style={styles.actionCardInvoiceFooterTotal}>
+                      <Text style={styles.title}>Total final: </Text>
+                      <Text style={styles.price}>
+                        {formatPrice(totalPedido)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setAntecipacao('');
+                        openModal()
+                      }}
+                      style={styles.btnSecondary}
+                    >
+                      <Icon
+                        name="qrcode"
+                        size={25}
+                        color="#fff"
+                        style={{ marginRight: 5 }}
+                      />
+                      <Text style={styles.btnText}>Antecipação PIX</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => solicitaContaClick()}
+                      style={styles.btnPrimary}
+                    >
+                      <Icons.CheckSquare
+                        strokeWidth={2}
+                        height={25}
+                        width={30}
+                        stroke="#FFF"
+                        style={{ marginRight: 5 }}
+                      />
+                      <Text style={styles.btnText}>Pedir Conta</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={{
+                      fontSize: 34,
+                      fontWeight: "bold",
+                      color: "#46423F",
+                    }}>Mesa vázia!</Text>
+                  </View>
+                </>
+              )}
             </View>
           </>
         )}
@@ -285,29 +303,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#3E3E3E",
   },
+  actionCardHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginLeft: wp('2%'),
+    marginRight: wp('2%'),
+    marginTop: wp('2%'),
+  },
+  actionCardHeaderTitle: {
+    fontSize: FONTSIZE.size_20,
+    fontWeight: "bold",
+    color: "#A2A4A3",
+  },
   actionCard: {
     flex: 1,
     backgroundColor: "#ddd",
     borderRadius: 10,
-    padding: 20,
-    margin: 20,
+    padding: hp('2%'),
+    margin: wp('2%'),
   },
-  actionCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 20,
+  regTable: {
+    fontSize: FONTSIZE.size_18,
+    fontWeight: "bold",
+    color: "#363539",
+    marginLeft: hp('1%'),
+  },
+  emptyCartImage: {
+    width: hp('40%'),
+    height: wp('20%'),
   },
   actionCardBack: {
     color: "#ffa500",
     fontWeight: "bold",
     fontSize: 20,
-  },
-  actionCardHeaderTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#A2A4A3",
   },
   actionCardContent: {
     flex: 1,
@@ -320,58 +348,73 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tableCol: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: hp('1%'),
+  },
+  tableColLeft: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  tableColRigth: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
   actionCardInvoiceTableTitle: {
     flex: 2,
   },
   invoiceImage: {
-    width: 50,
-    height: 50,
+    width: hp('10%'),
+    height: wp('5%'),
+    borderRadius: 5,
   },
   actionCardInvoiceFooter: {
     marginTop: 10,
     padding: 10,
     backgroundColor: "#ddd",
-    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   title: {
-    fontSize: 16,
+    fontSize: FONTSIZE.size_16,
     color: "#46423F",
   },
   price: {
-    fontSize: 22,
+    fontSize: FONTSIZE.size_20,
     fontWeight: "bold",
     color: "#46423F",
   },
   btnPrimary: {
     backgroundColor: '#F38321',
-    padding: 15,
+    padding: 10,
+    width: wp('15%'),
+    height: hp('10%'),
     borderRadius: 5,
     alignItems: "center",
     flexDirection: "row",
   },
   btnSecondary: {
     backgroundColor: '#03A371',
-    padding: 15,
+    padding: 10,
+    width: wp('18%'),
+    height: hp('10%'),
     borderRadius: 5,
     alignItems: "center",
     flexDirection: "row",
   },
   btnDanger: {
-    backgroundColor: "red",
-    padding: 10,
+    backgroundColor: "#3E3E3E",
+    padding: 15,
     borderRadius: 5,
     alignItems: "center",
+    flexDirection: "row",
   },
   btnText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: FONTSIZE.size_20,
     fontWeight: "bold",
   },
   btnSubText: {
