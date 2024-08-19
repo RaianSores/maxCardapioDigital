@@ -6,9 +6,12 @@ export const getItemsMesa = async (numeroMesa: number): Promise<Conta[]> => {
     const response = await api.get<Conta[]>(
       `/food/venda/mesa/consultarItens?numero=${numeroMesa}`
     );
-    return response.data;
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return [];
+    }   
   } catch (error) {
-    console.error("Erro ao consultar itens da mesass:", error);
     throw error;
   }
 };

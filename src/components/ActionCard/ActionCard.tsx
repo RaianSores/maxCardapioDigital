@@ -28,6 +28,7 @@ const ActionCard = () => {
                     <Image
                       source={require("../assets/img/produtos/cerveja-stella.jpg")}
                       style={styles.invoiceImage}
+                      resizeMode="contain"
                     />
                   </View>
                   <View

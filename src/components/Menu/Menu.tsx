@@ -2,6 +2,7 @@ import React, { useEffect, useState, } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import * as Icons from 'react-native-feather';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { getGrupos } from "../../services/grupoService";
 import { Grupo } from "../../@types/Grupo";
 import showToast from "../../utils/ToastUtil";
@@ -46,6 +47,7 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
             ? { uri: "data:image/png;base64," + item.imagem }
             : require("../../assets/img/sem-foto.jpg")
         }
+        resizeMode="contain"
         style={styles.menuListItemPhoto}
       />
       <Text style={styles.menuListItemTitle}>{item.nome}</Text>
@@ -72,7 +74,7 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
         data={grupos}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        estimatedItemSize={50}
+        estimatedItemSize={20}
       />
     </View>
   );
@@ -80,8 +82,8 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
 
 const styles = StyleSheet.create({
   menu: {
-    width: "25%",
-    padding: 10,
+    width: wp("25%"),
+    padding: wp("1%"),
   },
   menuTitle: {
     fontSize: 20,
@@ -92,37 +94,36 @@ const styles = StyleSheet.create({
   menuListItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: wp("1%"),
     backgroundColor: "#dddddd",
-    color: "#000",
-    fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: hp("1.5%"),
     borderRadius: 5,
   },
   promotion: {
     backgroundColor: "#ffa500",
-    marginTop: 26,
+    marginTop: hp("5%"),
   },
   menuListItemPhoto: {
-    width: 45,
-    height: 40,
-    marginRight: 10,
+    width: wp('4%'),
+    height: hp('8%'),
+    marginRight: wp("1%"),
+    borderRadius: 6,
   },
   promotionIcon: {
-    width: 45,
-    height: 45,
-    marginRight: 10,
+    width: wp('4%'),
+    height: hp('8%'),
+    marginRight: wp("1%"),
   },
   menuListItemTitle: {
-    fontSize: 16,
+    fontSize: wp("1.5%"),
     fontWeight: "bold",
     color: "#46423F",
   },
   menuListItemPromotion: {
-    fontSize: 18,
+    fontSize: wp("1.7%"),
     fontWeight: "bold",
     color: "#FFF",
-    paddingLeft: 10,
+    paddingLeft: wp("1%"),
   },
 });
 

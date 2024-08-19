@@ -10,12 +10,14 @@ import {
 import LottieView from 'lottie-react-native';
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Header from "../components/Header/Header";
-import { Venda, VendaItem } from "../@types/Venda";
-import { sendVenda } from "../services/vendaService";
-import showToast from "../utils/ToastUtil";
-import { formatPrice } from "../utils/format";
-import { CartContext } from "../Context/CartContext";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Header from "../../components/Header/Header";
+import { Venda, VendaItem } from "../../@types/Venda";
+import { sendVenda } from "../../services/vendaService";
+import showToast from "../../utils/ToastUtil";
+import { formatPrice } from "../../utils/format";
+import { CartContext } from "../../Context/CartContext";
+import { FONTSIZE } from "../../theme/theme";
 
 const CartScreen = ({ navigation }: any) => {
   const [cartItems, setCartItems] = useState([]);
@@ -128,8 +130,9 @@ const CartScreen = ({ navigation }: any) => {
     } else {
       return (
         <Image
-          source={require("../assets/img/sem-foto.jpg")}
+          source={require("../../assets/img/sem-foto.jpg")}
           style={styles.invoiceImage}
+          resizeMode="contain"
         />
       );
     }
@@ -148,7 +151,7 @@ const CartScreen = ({ navigation }: any) => {
       {isLoading ? (
         <>
           <LottieView
-            source={require("../lottie/MaxData.json")}
+            source={require("../../lottie/MaxData.json")}
             autoPlay
             loop
             style={{ flex: 1, width: 250, height: 250, alignSelf: 'center' }}
@@ -166,7 +169,7 @@ const CartScreen = ({ navigation }: any) => {
                 }}
               >
                 <Image
-                  source={require("../assets/carrinho.png")}
+                  source={require("../../assets/carrinho.png")}
                   style={styles.emptyCartImage}
                 />
                 <Text
@@ -197,12 +200,12 @@ const CartScreen = ({ navigation }: any) => {
                     >
                       <Text style={styles.regTable}>{item.description}</Text>
                     </View>
-                    <View style={styles.tableCol}>
+                    <View style={styles.tableColRigth}>
                       <Text style={styles.regTable}>
                         {formatPrice(item.price)}
                       </Text>
                     </View>
-                    <View style={styles.tableCol}>
+                    <View style={styles.tableColRigth}>
                       <Text style={styles.regTable}>x {item.quantity}</Text>
                     </View>
                     <View style={styles.tableColRigth}>
@@ -245,53 +248,43 @@ const CartScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  loadingOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)", // Fundo semi-transparente
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1, // Certifica que a overlay está sobre os outros componentes
-  },
-  regTable: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#363539",
-  },
-  emptyCartImage: {
-    width: 200,
-    height: 200,
-  },
   container: {
     flex: 1,
     backgroundColor: "#3E3E3E",
+  },
+  actionCardHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginLeft: wp('2%'),
+    marginRight: wp('2%'),
+    marginTop: wp('2%'),
+  },
+  actionCardHeaderTitle: {
+    fontSize: FONTSIZE.size_20,
+    fontWeight: "bold",
+    color: "#A2A4A3",
   },
   actionCard: {
     flex: 1,
     backgroundColor: "#ddd",
     borderRadius: 10,
-    padding: 20,
-    margin: 20,
+    padding: hp('2%'),
+    margin: wp('2%'),
   },
-  actionCardHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 20,
+  regTable: {
+    fontSize: FONTSIZE.size_18,
+    fontWeight: "bold",
+    color: "#363539",
+    marginLeft: hp('1%'), 
+  },
+  emptyCartImage: {
+    width: hp('40%'),
+    height: wp('20%'),
   },
   actionCardBack: {
     color: "#ffa500",
     fontWeight: "bold",
-    fontSize: 20,
-  },
-  actionCardHeaderTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#A2A4A3",
+    fontSize: FONTSIZE.size_20,
   },
   actionCardContent: {
     flex: 1,
@@ -304,9 +297,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tableCol: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: hp('1%'),
   },
   tableColLeft: {
     flex: 1,
@@ -322,8 +315,9 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   invoiceImage: {
-    width: 50,
-    height: 50,
+    width: hp('10%'),
+    height: wp('5%'),
+    borderRadius: 5,
   },
   actionCardInvoiceFooter: {
     marginTop: 10,
@@ -335,11 +329,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between", // Distribui espaço uniformemente
   },
   title: {
-    fontSize: 16,
+    fontSize: FONTSIZE.size_16,
+    color: "#46423F",
   },
   price: {
-    fontSize: 22,
+    fontSize: FONTSIZE.size_20,
     fontWeight: "bold",
+    color: "#46423F",
   },
   btnPrimary: {
     backgroundColor: '#F38321',
@@ -357,7 +353,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: FONTSIZE.size_20,
     fontWeight: "bold",
   },
   actionCardInvoiceFooterSum: {

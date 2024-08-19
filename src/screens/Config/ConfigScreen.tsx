@@ -15,7 +15,7 @@ import { Picker } from "@react-native-picker/picker";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import DeviceInfo from 'react-native-device-info';
 import LottieView from 'lottie-react-native';
-import showToast from "../utils/ToastUtil";
+import showToast from "../../utils/ToastUtil";
 
 function Config({ navigation }: any) {
   const [ipUrl, setIpUrl] = useState("");
@@ -136,7 +136,7 @@ function Config({ navigation }: any) {
         {loading ? (
           <>
             <LottieView
-              source={require("../lottie/MaxData.json")}
+              source={require("../../lottie/MaxData.json")}
               autoPlay
               loop
               style={{ flex: 1, width: 250, height: 250, alignSelf: 'center', backgroundColor: '#3E3E3E' }}
