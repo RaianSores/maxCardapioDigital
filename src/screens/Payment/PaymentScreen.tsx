@@ -4,19 +4,18 @@ import {
     View,
     SafeAreaView,
     TouchableOpacity,
-    StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 import LottieView from 'lottie-react-native';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { IPix, Venda } from '../@types/Venda';
-import { CartContext } from '../Context/CartContext';
-import { checkPaymentStatusPix, finalizaFoodVenda, generatePix } from '../services/vendaService';
-import showToast from '../utils/ToastUtil';
-import Header from '../components/Header/Header';
-import { formatPrice } from '../utils/format';
+import { IPix, Venda } from '../../@types/Venda';
+import { CartContext } from '../../Context/CartContext';
+import { checkPaymentStatusPix, finalizaFoodVenda, generatePix } from '../../services/vendaService';
+import showToast from '../../utils/ToastUtil';
+import Header from '../../components/Header/Header';
+import { formatPrice } from '../../utils/format';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { styles } from './styles';
 
 interface IPixData {
     qrCode: string;
@@ -178,9 +177,9 @@ const PaymentScreen: React.FC = () => {
         if (!pixData || !pixData.qrCode) {
             return (
                 <>
-                    <View style={styles.ContainerLottieView}>
+                    <View style={styles.containerLottieView}>
                         <LottieView
-                            source={require("../lottie/MaxData.json")}
+                            source={require("../../lottie/MaxData.json")}
                             autoPlay
                             loop
                             style={{ width: 280, height: 280, alignSelf: 'center' }}
@@ -206,35 +205,34 @@ const PaymentScreen: React.FC = () => {
 
     return (
         <>
-            <SafeAreaView style={styles.Container}>
+            <SafeAreaView style={styles.container}>
                 <Header />
-                <View style={styles.ActionCardHeader}>
-                    <Text style={styles.ActionCardHeaderTitle}>Antecipação | </Text>
+                <View style={styles.actionCardHeader}>
+                    <Text style={styles.actionCardHeaderTitle}>Antecipação | </Text>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Text style={styles.ActionCardBack}>Voltar</Text>
+                        <Text style={styles.actionCardBack}>Voltar</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.ActionCard}>
-                    <View style={styles.Context}>
-                        <View style={styles.ContainerQrCode}>
-                            <Text style={styles.HeaderText}>Pague com Pix</Text>
-                            <View style={styles.EmptyView} />
+                <View style={styles.actionCard}>
+                    <View style={styles.context}>
+                        <View style={styles.containerQrCode}>
+                            <Text style={styles.headerText}>Pague com Pix</Text>
+                            <View style={styles.emptyView} />
                             {renderQRCode()}
                         </View>
-                        <View style={styles.ContainerValue}>
-                            <Text style={styles.TextSumary}>Resumo</Text>
-                            <View style={styles.ActionCardInvoiceFooterRow}>
-                                <Text style={styles.Title}>Total Pedido:</Text>
-                                <Text style={styles.Price}>{formatPrice(totalPedido)}</Text>
+                        <View style={styles.containerValue}>
+                            <Text style={styles.textSumary}>Resumo</Text>
+                            <View style={styles.actionCardInvoiceFooterRow}>
+                                <Text style={styles.title}>Total Pedido:</Text>
+                                <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
                             </View>
-                            <View style={styles.ActionCardInvoiceFooterRow}>
-                                <Text style={styles.Title}>+ Serviço:</Text>
-                                <Text style={styles.Price}>{formatPrice(totalServico)}</Text>
+                            <View style={styles.actionCardInvoiceFooterRow}>
+                                <Text style={styles.title}>+ Serviço:</Text>
+                                <Text style={styles.price}>{formatPrice(totalServico)}</Text>
                             </View>
-                            {/*        <View style={{ backgroundColor: 'black', height: 1 }}/> */}
-                            <View style={styles.ActionCardInvoiceFooterRow}>
-                                <Text style={styles.Title}>Total Final:</Text>
-                                <Text style={styles.Price}>{formatPrice(totalPedido)}</Text>
+                            <View style={styles.actionCardInvoiceFooterRow}>
+                                <Text style={styles.title}>Total Final:</Text>
+                                <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
                             </View>
                         </View>
                     </View>
@@ -245,103 +243,3 @@ const PaymentScreen: React.FC = () => {
 };
 
 export default PaymentScreen;
-
-export const styles = StyleSheet.create({
-    Container: {
-        flex: 1,
-        backgroundColor: '#3E3E3E',
-    },
-    Context: {
-        display: 'flex',
-        flexDirection: "row-reverse",
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    HeaderText: {
-        fontSize: 22,
-        color: 'white',
-        fontWeight: 'bold',
-    },
-    TextSumary: {
-        fontSize: 22,
-        color: '#3E3E3E',
-        fontWeight: 'bold',
-    },
-    EmptyView: {
-        height: 5,
-    },
-    ContainerQrCode: {
-        display: 'flex',
-        flexDirection: "column",
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        top: '1%',
-        backgroundColor: '#3E3E3E',
-        borderRadius: 10,
-        padding: '1%',
-    },
-    ContainerLottieView: {
-        display: 'flex',
-        flexDirection: "column",
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        top: '1%',
-        backgroundColor: '#3E3E3E',
-        borderRadius: 10,
-        padding: '1%',
-    },
-    ContainerValue: {
-        display: 'flex',
-        flexDirection: "column",
-        alignItems: 'stretch',
-        justifyContent: 'space-between',
-        padding: hp('2%'),
-        top: hp('1%'),
-        backgroundColor: '#cecbcb',
-        borderRadius: 5,
-        width: wp('40%'),
-        height: hp('40%'),
-    },
-    ActionCard: {
-        flex: 1,
-        backgroundColor: "#ddd",
-        borderRadius: 10,
-        padding: 20,
-        margin: 10,
-    },
-    Title: {
-        flex: 1,
-        fontSize: 20,
-        color: "#3E3E3E",
-    },
-    Price: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#3E3E3E",
-        textAlign: 'right',
-    },
-    ActionCardInvoiceFooterRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: '100%',
-        marginVertical: 5,
-    },
-    ActionCardHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginLeft: 20,
-        marginRight: 20,
-        marginTop: 20,
-    },
-    ActionCardBack: {
-        color: "#ffa500",
-        fontWeight: "bold",
-        fontSize: 20,
-    },
-    ActionCardHeaderTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#A2A4A3",
-    },
-});

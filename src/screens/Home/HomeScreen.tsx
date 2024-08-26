@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import Header from "../../components/Header/Header";
 import Menu from "../../components/Menu/Menu";
 import ProductList from "../../components/ProductList/ProductList";
+import { styles } from "./styles";
 
 const HomeScreen = () => {
   const [selectedGroupId, setSelectedGroupId] = useState(0);
@@ -21,16 +22,5 @@ const HomeScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#3E3E3E",
-  },
-  content: {
-    flex: 1,
-    flexDirection: "row",
-  },
-});
 
 export default HomeScreen;

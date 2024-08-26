@@ -6,7 +6,6 @@ export const getGrupos = async (): Promise<Grupo[]> => {
     const response = await api.get<Grupo[]>("/food/grupo/consultar");
     return response.data;
   } catch (error) {
-    console.error("Erro ao obter grupos:", error);
     throw error;
   }
 };

@@ -83,15 +83,17 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
     async function fetchCartItems(numeroMesa: number) {
         try {
             const items = await getItemsMesa(numeroMesa);
-            if (items) {
+    
+            if (items.length === 0) {
+                setCartItems([]);
+            } else {
                 setCartItems(items);
             }
-
         } catch (error) {
-            //showToast("Erro ao carregar itens da mesa!", 'error');
+            showToast("Erro ao carregar itens da mesa!", 'error');
         }
-    };
-
+    }
+    
     const fetchCartItemCount = async () => {
         const itemCount = await getCartItemCount();
         setCartItemCount(itemCount);

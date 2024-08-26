@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
-  StyleSheet,
   Text,
   View,
   ScrollView,
   TextInput,
   Alert,
   TouchableOpacity,
+  Image
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +16,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import DeviceInfo from 'react-native-device-info';
 import LottieView from 'lottie-react-native';
 import showToast from "../../utils/ToastUtil";
+import { styles } from "./styles";
 
 function Config({ navigation }: any) {
   const [ipUrl, setIpUrl] = useState("");
@@ -89,7 +90,6 @@ function Config({ navigation }: any) {
           }, 1800);
           await navigation.navigate('Home');
         } catch (error) {
-          //showToast("Erro ao buscar dados. Por favor, tente novamente!", 'error');
           Alert.alert("Erro", "Erro ao buscar dados. Por favor, tente novamente.");
         }
       }
@@ -97,7 +97,7 @@ function Config({ navigation }: any) {
         setLoading(false);
       }, 1800);
     } catch (error) {
-      showToast("Erro ao buscar dados do AsyncStorage!", 'error');
+      Alert.alert("Erro ao buscar dados do AsyncStorage!");
     }
   };
 
@@ -109,7 +109,8 @@ function Config({ navigation }: any) {
       await AsyncStorage.setItem("idVendedor", idVendedor);
       await AsyncStorage.setItem("numMesa", numMesa);
 
-      try {     
+      try {
+
         const id = await DeviceInfo.getUniqueId();
         const config = {
           headers: { terminal: id, empId: idEmpresa },
@@ -118,21 +119,20 @@ function Config({ navigation }: any) {
           "http://" + ipUrl + ":" + porta + "/v1/auth",
           config
         );
+
         await AsyncStorage.setItem("token", response.data.token);
         await navigation.navigate('Home');
       } catch (error) {
-        //showToast("Erro ao buscar dados. Por favor, tente novamente!", 'error');
         Alert.alert("Erro", "Erro ao buscar dados. Por favor, tente novamente.");
       }
     } catch (error) {
-      //showToast("Erro ao salvar dados. Por favor, tente novamente!", 'error');
       Alert.alert("Erro", "Erro ao salvar dados. Por favor, tente novamente.");
     }
   };
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#3E3E3E" }}>
+      <SafeAreaView style={styles.containerArea}>
         {loading ? (
           <>
             <LottieView
@@ -144,19 +144,16 @@ function Config({ navigation }: any) {
           </>
         ) : (
           <>
-
-            <View style={[styles.container, { paddingVertical: 20 }]}>
-              <View
-                style={[
-                  styles.row,
-                  { alignItems: "center", justifyContent: "space-between" },
-                ]}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                  <Text style={[{ fontSize: 20, color: "#fff" }]}>
-                    Configuração Da Aplicação
-                  </Text>
-                </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <Image
+                  source={require("../../assets/img/logo.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+                <Text style={[{ fontSize: 20, color: "#fff" }]}>
+                  Configurações
+                </Text>
               </View>
             </View>
 
@@ -167,6 +164,7 @@ function Config({ navigation }: any) {
                 borderRadius: 10,
                 marginLeft: 50,
                 marginRight: 50,
+                marginBottom: 50,
               }}
             >
               <View style={[styles.container, { flexGrow: 1, marginTop: 0 }]}>
@@ -178,7 +176,7 @@ function Config({ navigation }: any) {
                     <TextInput
                       style={[styles.input, styles.textInput]}
                       placeholder="Digite aqui..."
-                      keyboardType="numeric"
+                      keyboardType="default"
                       onChangeText={(value) => setIpUrl(value)}
                       value={ipUrl}
                     />
@@ -282,67 +280,5 @@ function Config({ navigation }: any) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  pickerContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 5,
-  },
-  picker: {
-    flex: 1,
-    height: 40,
-  },
-  refreshIcon: {
-    marginLeft: 10,
-  },
-  selectedItem: {
-    fontSize: 18,
-  },
-  button: {
-    backgroundColor: "#3E3E3E",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  container: {
-    padding: 10,
-    maxWidth: 2500,
-    marginLeft: "auto",
-    marginRight: "auto",
-    width: "100%",
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -5,
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#7D899D",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    marginBottom: 5,
-    width: "100%",
-    marginTop: 5,
-    fontSize: 18,
-  },
-  textInput: {
-    backgroundColor: '#FFFFFF',
-    color: '#21262E',
-  },
-});
 
 export default Config;
