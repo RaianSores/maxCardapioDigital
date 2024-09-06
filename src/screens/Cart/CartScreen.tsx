@@ -1,7 +1,7 @@
-import React, { 
-  useState, 
-  useEffect, 
-  useContext 
+import React, {
+  useState,
+  useEffect,
+  useContext
 } from "react";
 import {
   View,
@@ -80,19 +80,32 @@ const CartScreen = ({ navigation }: any) => {
         ? cart.itens.reduce((total: number, item: any) => total + item.valorTotal, 0)
         : 0;
 
-    const itensVenda: VendaItem[] = cart.map((item: any) => ({
-      vendaId: 0,
-      codProduto: item.id,
-      cfop: 5102,
-      qtde: item.quantity,
-      valor: item.price,
-      descricaoProd: item.description,
-      valorTotal: item.price * item.quantity,
-      status: "A",
-      data: new Date().toISOString(),
-      un: "UN",
-      desconto: item.desconto || 0,
-    }));
+    const itensVenda: VendaItem[] = cart.map((product: any) => {
+      const item: any = {
+        vendaId: 0,
+        codProduto: product.id,
+        cfop: 5102,
+        qtde: product.quantity,
+        valor: product.price,
+        descricaoProd: product.description,
+        valorTotal: product.price * product.quantity,
+        status: "A",
+        data: new Date().toISOString(),
+        un: "UN",
+        desconto: product.desconto || 0,
+      }
+
+      if (product.additionals && product.additionals.length > 0) {
+        item.adicional = product.additionals;
+        item.infAdProd = 'ADD';
+      }
+
+      if (product.optionals && product.optionals.length > 0) {
+        item.opcional = product.optionals;
+      }
+
+      return item;
+    });
 
     const orderJson: Venda = {
       numMesa: numMesa,
@@ -116,7 +129,6 @@ const CartScreen = ({ navigation }: any) => {
         itens: itensVenda,
       },
     };
-
     await enviaDadosVenda(orderJson);
     await clearCart();
   };
@@ -187,13 +199,30 @@ const CartScreen = ({ navigation }: any) => {
             </View>
           ) : (
             <View style={styles.actionCard}>
+              <View style={styles.actionCardHeaderList}>
+                <View style={[
+                  styles.tableColLeft,
+                  styles.actionCardInvoiceTableTitle,
+                ]}>
+                  <Text style={styles.regTable}>Descrição</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Vlr Unit.</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Qtde</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Vlr Total</Text>
+                </View>
+              </View>
               <ScrollView
                 style={styles.actionCardContent}
                 contentContainerStyle={{ paddingBottom: 60 }}
               >
                 {cartItems.map((item: any, index) => (
                   <View key={index} style={styles.actionCardInvoiceTableRow}>
-                    <View style={styles.tableCol}>{renderItemImage(item)}</View>
+                    <View style={styles.tableCol}>{renderItemImage(item)}</View> 
                     <View
                       style={[
                         styles.tableColLeft,

@@ -30,6 +30,8 @@ export interface Produto {
   valorPromocao?: number;
   dataFinal?: string;
   dataInicial?: string;
+  adicional?: IProdutosAdditional[];
+  opcional?: IProdutosOptions[];
 }
 
 export interface ProdutosResponse {
@@ -38,4 +40,17 @@ export interface ProdutosResponse {
   limit: number;
   page: number;
   pages: number;
+}
+
+export interface IProdutosAdditional {
+  faId: number;
+  faDescricao: string;
+  faPrecoVenda: number;
+  faQtde: number;
+}
+
+export interface IProdutosOptions {
+  foId: number;
+  foDescricao: string;
+  isSelected?: boolean;
 }

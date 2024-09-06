@@ -1,3 +1,5 @@
+import { IProdutosAdditional, IProdutosOptions } from "./Produto";
+
 export interface Venda {
   numMesa: string;
   operador: number;
@@ -34,8 +36,8 @@ export interface VendaItem {
   valorTotal: number;
   status: string;
   un: string;
-  opcional: any[]; // Adaptar conforme sua estrutura de opcionais
-  adicional: any[]; // Adaptar conforme sua estrutura de adicionais
+  opcional: IProdutosOptions[];
+  adicional: IProdutosAdditional[]; 
 }
 
 export interface IFoodVendaPagamento {

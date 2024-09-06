@@ -16,8 +16,8 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
+  
+  useEffect(() => {    
     selectedGroupId === 10000 ? fetchProdutosPromocoes() : fetchProdutos();
   }, [selectedGroupId]);
 

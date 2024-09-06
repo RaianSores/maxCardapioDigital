@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  StyleSheet,
   RefreshControl,
   TouchableOpacity,
   SafeAreaView,
@@ -12,31 +11,35 @@ import {
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from 'lottie-react-native';
+import * as Icons from 'react-native-feather';
 import Icon from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../../components/Header/Header";
 import { formatPrice } from "../../utils/format";
 import { CartContext } from "../../Context/CartContext";
 import { solicitarConta } from "../../services/vendaService";
 import { IRequestAccount } from "../../@types/Venda";
-import * as Icons from 'react-native-feather';
 import showToast from "../../utils/ToastUtil";
-import { COLORS, FONTSIZE } from '../../theme/theme';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "./styles";
+import { getConfiguracoes } from "../../services/configService";
 
 const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const {
     cartItems,
-    setCartItems,
     totalPedido,
+    desconto,
     totalServico,
     numeroMesa,
+    totalFinal,
     antecipacao,
     calcularTotais,
     fetchCartItems,
-    fetchNumeroMesa,
+    temContaMaxDigital,
+    setTemContaMaxDigital,
     setAntecipacao,
+    setTaxaServico
   } = useContext(CartContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { fetchUserData } = useContext(CartContext);
@@ -52,14 +55,25 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   async function init() {
     setIsLoading(true);
-    fetchNumeroMesa();
-    if (numeroMesa !== null) {
-      fetchCartItems(numeroMesa);
+    fetchConfiEmp();
+    const mesa = await AsyncStorage.getItem("numMesa");
+    if (mesa !== null) {
+      fetchCartItems(parseInt(mesa));
     }
     setTimeout(() => {
       setIsLoading(false);
     }, 800);
-  };
+  }
+
+  const fetchConfiEmp = async () => {
+    try {
+      const data = await getConfiguracoes();
+      setTemContaMaxDigital(data.TemContaMaxDigital);
+      setTaxaServico(data.TaxaServico);
+    } catch (error) {
+      console.error('Erro ao buscar configurações:', error);
+    }
+  }
 
   async function solicitaContaClick() {
     try {
@@ -79,26 +93,26 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     } catch (error) {
       showToast("Erro ao solicitar conta!", 'error');
     }
-  };
+  }
 
   async function handlePaymentClick() {
     try {
-      await navigation.navigate('Payment')
+      await navigation.navigate('Payment');
     } catch (error) {
       showToast("Erro ao solicitar conta!", 'error');
     }
-  };
+  }
 
   const closeModal = () => {
     setShowModal(false);
     if (showModal && antecipacao !== '') {
       handlePaymentClick();
     }
-  };
+  }
 
   const openModal = () => {
     setShowModal(true);
-  };
+  }
 
   const renderItemImage = (item: any) => {
     if (item.imagem) {
@@ -117,37 +131,28 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         />
       );
     }
-  };
+  }
 
   const renderCartItem = ({ item }: { item: any }) => {
     return (
       <>
         <View style={styles.actionCardInvoiceTableRow}>
           <View style={styles.tableCol}>{renderItemImage(item)}</View>
-          <View
-            style={[
-              styles.tableColLeft,
-              styles.actionCardInvoiceTableTitle,
-            ]}
-          >
+          <View style={[styles.tableColLeft, styles.actionCardInvoiceTableTitle]}>
             <Text style={styles.regTable}>{item.descricaoProd}</Text>
           </View>
           <View style={styles.tableColRigth}>
-            <Text style={styles.regTable}>
-              {formatPrice(item.valorTotal)}
-            </Text>
+            <Text style={styles.regTable}>{formatPrice(item.valorTotal)}</Text>
           </View>
           <View style={styles.tableColRigth}>
             <Text style={styles.regTable}>x {item.qtde}</Text>
           </View>
           <View style={styles.tableColRigth}>
-            <Text style={styles.regTable}>
-              {formatPrice(item.valorTotal * item.qtde)}
-            </Text>
+            <Text style={styles.regTable}>{formatPrice(item.valorLiquido)}</Text>
           </View>
         </View>
       </>
-    )
+    );
   };
 
   const renderModal = () => (
@@ -162,9 +167,9 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             keyboardType="numeric"
             placeholder="0,00"
             style={{
-              fontSize: FONTSIZE.size_30,
-              color: COLORS.primaryWhiteHex,
-              alignItems: 'center',           
+              fontSize: 30,
+              color: '#FFF',
+              alignItems: 'center',
               textAlign: 'center',
               justifyContent: 'center',
             }}
@@ -212,89 +217,80 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             />
           </>
         ) : (
-          <>
+          <View style={styles.mainContent}>
             <View style={styles.actionCard}>
+              <View style={styles.actionCardHeaderList}>
+              <View style={[
+                  styles.tableColLeft,
+                  styles.actionCardInvoiceTableTitle,
+                ]}>
+                  <Text style={styles.regTable}>Descrição</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Vlr Unit.</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Qtde</Text>
+                </View>
+                <View style={styles.tableColRigth}>
+                  <Text style={styles.regTable}>Vlr Total</Text>
+                </View>
+              </View>
               {cartItems.length > 0 ? (
-                <>
-                  <FlashList
-                    data={cartItems}
-                    renderItem={renderCartItem}
-                    keyExtractor={(item, index) => index.toString()}
-                    refreshing={refreshing}
-                    refreshControl={
-                      <RefreshControl refreshing={refreshing} onRefresh={() => fetchCartItems(numeroMesa!)} />
-                    }
-                    estimatedItemSize={50}
-                    contentContainerStyle={styles.flashListContentContainer}
-                  />
-                  <View style={styles.actionCardInvoiceFooter}>
-                    <View style={styles.actionCardInvoiceFooterSum}>
-                      <Text style={styles.title}>Total Pedido: </Text>
-                      <Text style={styles.price}>
-                        {formatPrice(totalPedido)}
-                      </Text>
-                    </View>
-                    <View style={styles.actionCardInvoiceFooterService}>
-                      <Text style={styles.title}>+Serviço: </Text>
-                      <Text style={styles.price}>{formatPrice(totalServico)}</Text>
-                    </View>
-                    <View style={styles.actionCardInvoiceFooterTotal}>
-                      <Text style={styles.title}>Total final: </Text>
-                      <Text style={styles.price}>
-                        {formatPrice(totalPedido)}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setAntecipacao('');
-                        openModal()
-                      }}
-                      style={styles.btnSecondary}
-                    >
-                      <Icon
-                        name="qrcode"
-                        size={25}
-                        color="#fff"
-                        style={{ marginRight: 5 }}
-                      />
-                      <Text style={styles.btnText}>Antecipação PIX</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => solicitaContaClick()}
-                      style={styles.btnPrimary}
-                    >
-                      <Icons.CheckSquare
-                        strokeWidth={2}
-                        height={25}
-                        width={30}
-                        stroke="#FFF"
-                        style={{ marginRight: 5 }}
-                      />
-                      <Text style={styles.btnText}>Pedir Conta</Text>
-                    </TouchableOpacity>
-                  </View>
-                </>
+                <FlashList
+                  data={cartItems}
+                  renderItem={renderCartItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  refreshing={refreshing}
+                  refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={() => fetchCartItems(numeroMesa!)} />
+                  }
+                  estimatedItemSize={50}
+                  contentContainerStyle={styles.flashListContentContainer}
+                />
               ) : (
-                <>
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={{
-                      fontSize: 34,
-                      fontWeight: "bold",
-                      color: "#46423F",
-                    }}>Mesa vázia!</Text>
-                  </View>
-                </>
+                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                  <Text style={{ fontSize: 34, fontWeight: "bold", color: "#46423F" }}>Mesa vázia!</Text>
+                </View>
               )}
             </View>
-          </>
+
+            <View style={styles.actionPrice}>
+              <Text style={styles.textSumary}>Resumo</Text>
+              <View style={styles.lineItem}>
+                <Text style={styles.title}>Total Pedido:</Text>
+                <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
+              </View>
+              <View style={styles.lineItem}>
+                <Text style={styles.title}>+ Serviço:</Text>
+                <Text style={styles.price}>{formatPrice(totalServico)}</Text>
+              </View>
+              <View style={styles.lineItem}>
+                <Text style={styles.title}>- Desconto:</Text>
+                <Text style={styles.price}>{formatPrice(desconto)}</Text>
+              </View>
+              <View style={styles.lineItem}>
+                <Text style={styles.title}>Total Final:</Text>
+                <Text style={styles.price}>{formatPrice(totalFinal)}</Text>
+              </View>
+
+
+              <View style={styles.containerBottom}>
+                {temContaMaxDigital && (
+                  <TouchableOpacity onPress={openModal} style={styles.btnSecondary}>
+                    <Icon name="qrcode" size={30} color="#fff" />
+                    <Text style={styles.btnText}>Antecipar PIX</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={solicitaContaClick} style={styles.btnPrimary}>
+                  <Icons.CheckSquare strokeWidth={3} height={30} width={30} stroke="#FFF" />
+                  <Text style={styles.btnText}>Pedir Conta</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         )}
-        {showModal && (renderModal())}
+        {showModal && renderModal()}
       </SafeAreaView>
     </>
   );

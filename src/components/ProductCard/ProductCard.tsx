@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     padding: 6,
     gap: wp('1%'),
+    maxHeight: hp('25%')
   },
   productCardPhoto: {
     justifyContent: "center",
@@ -93,8 +94,7 @@ const styles = StyleSheet.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: wp('1%'),
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_14,
     color: "#46423F",
   },
   productCardTitle: {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   productCardAbout: {
     flex: 1,
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_16,
     color: "#46423F",
   },
   priceContainer: {
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#B3B6BB',
     marginRight: 8,
+
   },
   priceDiscount: {
     fontSize: FONTSIZE.size_18,

@@ -39,6 +39,7 @@ const PaymentScreen: React.FC = () => {
         totalPedido,
         empId,
         totalServico,
+        desconto,
         cartItems,
         antecipacao
     } = useContext(CartContext);
@@ -192,7 +193,7 @@ const PaymentScreen: React.FC = () => {
         return (
             <QRCode
                 value={pixData.qrCode}
-                size={300}
+                size={420}
                 color={'#FFF'}
                 backgroundColor={'#000'}
                 logoSize={30}
@@ -213,27 +214,32 @@ const PaymentScreen: React.FC = () => {
                         <Text style={styles.actionCardBack}>Voltar</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.actionCard}>
-                    <View style={styles.context}>
+
+                <View style={styles.mainContent}>
+                    <View style={styles.actionCard}>
                         <View style={styles.containerQrCode}>
                             <Text style={styles.headerText}>Pague com Pix</Text>
                             <View style={styles.emptyView} />
                             {renderQRCode()}
                         </View>
-                        <View style={styles.containerValue}>
-                            <Text style={styles.textSumary}>Resumo</Text>
-                            <View style={styles.actionCardInvoiceFooterRow}>
-                                <Text style={styles.title}>Total Pedido:</Text>
-                                <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
-                            </View>
-                            <View style={styles.actionCardInvoiceFooterRow}>
-                                <Text style={styles.title}>+ Serviço:</Text>
-                                <Text style={styles.price}>{formatPrice(totalServico)}</Text>
-                            </View>
-                            <View style={styles.actionCardInvoiceFooterRow}>
-                                <Text style={styles.title}>Total Final:</Text>
-                                <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
-                            </View>
+                    </View>
+                    <View style={styles.actionPrice}>
+                        <Text style={styles.textSumary}>Resumo</Text>
+                        <View style={styles.actionCardInvoiceFooterRow}>
+                            <Text style={styles.title}>Total Pedido:</Text>
+                            <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
+                        </View>
+                        <View style={styles.actionCardInvoiceFooterRow}>
+                            <Text style={styles.title}>+ Serviço:</Text>
+                            <Text style={styles.price}>{formatPrice(totalServico)}</Text>
+                        </View>
+                        <View style={styles.actionCardInvoiceFooterRow}>
+                            <Text style={styles.title}>- Desconto:</Text>
+                            <Text style={styles.price}>{formatPrice(desconto)}</Text>
+                        </View>
+                        <View style={styles.actionCardInvoiceFooterRow}>
+                            <Text style={styles.title}>Total Final:</Text>
+                            <Text style={styles.price}>{formatPrice(totalPedido)}</Text>
                         </View>
                     </View>
                 </View>

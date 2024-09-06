@@ -5,6 +5,9 @@ export interface Conta {
   qtde: number;
   descricaoProd: string;
   valorTotal: number;
+  desconto: number;
+  vlrOutrasDesp: number;
+  valorLiquido: number;
   cancelado: string; // De acordo com a API, pode ser "True" ou "False"
   infAdicional: string;
   relacaoVdi: number;
