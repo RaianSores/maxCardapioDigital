@@ -38,7 +38,6 @@ function Config({ navigation }: any) {
         showToast("Dados da empresa não encontrados!", 'error');
       }
     } catch (error) {
-      // showToast("Não foi possível carregar os dados da empresa. Verifique a conexão e tente novamente.", 'error');
       Alert.alert("Erro", "Não foi possível carregar os dados da empresa. Verifique a conexão e tente novamente.");
     }
   };
@@ -108,9 +107,7 @@ function Config({ navigation }: any) {
       await AsyncStorage.setItem("idEmpresa", idEmpresa);
       await AsyncStorage.setItem("idVendedor", idVendedor);
       await AsyncStorage.setItem("numMesa", numMesa);
-
       try {
-
         const id = await DeviceInfo.getUniqueId();
         const config = {
           headers: { terminal: id, empId: idEmpresa },
@@ -119,7 +116,6 @@ function Config({ navigation }: any) {
           "http://" + ipUrl + ":" + porta + "/v1/auth",
           config
         );
-
         await AsyncStorage.setItem("token", response.data.token);
         await navigation.navigate('Home');
       } catch (error) {

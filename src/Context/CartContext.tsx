@@ -14,6 +14,7 @@ interface ICartContextData {
     setCartItems: React.Dispatch<React.SetStateAction<any[]>>;
     totalPedido: number;
     totalServico: number;
+    setTotalServico: React.Dispatch<React.SetStateAction<number>>;
     totalCouvert: number;
     totalFinal: number;
     cartItemCount: number;
@@ -34,6 +35,12 @@ interface ICartContextData {
     fetchUserData: () => void;
     antecipacao: string; 
     setAntecipacao: React.Dispatch<React.SetStateAction<string>>;
+    taxaServico: number; 
+    setTaxaServico: React.Dispatch<React.SetStateAction<number>>;
+    desconto: number;  
+    setDesconto: React.Dispatch<React.SetStateAction<number>>;
+    temContaMaxDigital: boolean; 
+    setTemContaMaxDigital: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const CartContext = createContext<ICartContextData>({} as ICartContextData);
@@ -42,30 +49,36 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
     const [cartItems, setCartItems] = useState<Conta[]>([]);
     const [totalPedido, setTotalPedido] = useState(0);
     const [totalServico, setTotalServico] = useState(0);
+    const [taxaServico, setTaxaServico] = useState(0);
     const [totalCouvert, setTotalCouvert] = useState(0);
     const [totalFinal, setTotalFinal] = useState(0);
+    const [desconto, setDesconto] = useState(0);
     const [cartItemCount, setCartItemCount] = useState(0);
     const [numeroMesa, setNumeroMesa] = useState<number | null>(null);
     const [numMesa, setNumMesa] = useState('');
     const [empId, setEmpId] = useState('');
     const [atendente, setAtendente] = useState(0);
     const [antecipacao, setAntecipacao] = useState('');
+    const [temContaMaxDigital, setTemContaMaxDigital] = useState(false);
 
     function calcularTotais() {
         let pedido = 0;
-        let servico = 0;
-        let couvert = 0;
+        let desconto = 0;
         let final = 0;
+        let servico = 0;
 
         cartItems.forEach((item) => {
-            pedido += item.valorTotal * item.qtde;
+            pedido += item.valorTotal;
+            final += item.valorLiquido;
+            desconto += item.desconto;
+            servico += item.vlrOutrasDesp;
         });
-
+            
         setTotalPedido(pedido);
-        setTotalServico(servico);
-        setTotalCouvert(couvert);
         setTotalFinal(final);
-    };
+        setDesconto(desconto);
+        setTotalServico(servico);
+    } 
 
     async function fetchNumeroMesa() {
         try {
@@ -133,6 +146,7 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
                 setCartItems,
                 totalPedido,
                 totalServico,
+                setTotalServico,
                 totalCouvert,
                 totalFinal,
                 cartItemCount,
@@ -151,7 +165,13 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
                 setAtendente,
                 fetchUserData,
                 antecipacao, 
-                setAntecipacao
+                setAntecipacao,
+                temContaMaxDigital, 
+                setTemContaMaxDigital,
+                taxaServico, 
+                setTaxaServico,
+                desconto, 
+                setDesconto
             }}
         >
             {children}
