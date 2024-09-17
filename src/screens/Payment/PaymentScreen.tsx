@@ -55,6 +55,7 @@ const PaymentScreen: React.FC = () => {
         naoPago: '',
         concluida: '',
     });
+    const [vedId, setVedId] = useState<number>();
 
     useEffect(() => {
         paymentGeneratePix();
@@ -62,7 +63,7 @@ const PaymentScreen: React.FC = () => {
 
     useEffect(() => {
         if (pixData.txId) {
-            paymentTimer = setInterval(handlePaymentStatusPix, 3000);
+            paymentTimer = setInterval(handlePaymentStatusPix, 6000);
         }
         return () => clearPaymentTimer();
     }, [pixData.txId]);
@@ -73,7 +74,7 @@ const PaymentScreen: React.FC = () => {
             paymentTimer = null;
         };
     };
-
+     
     async function handlePayment(totalPrice: number, paymentMethod: string) {
         const idEmpresa = await AsyncStorage.getItem("idEmpresa");
         const idVendedor = await AsyncStorage.getItem("idVendedor");
@@ -84,7 +85,7 @@ const PaymentScreen: React.FC = () => {
                 operador: parseInt(idVendedor),
                 tipo: "M",
                 venda: {
-                    //id: 1,
+                    id: vedId,
                     clienteId: 1,
                     tipo: "VE",
                     atendente: parseInt(idVendedor),
@@ -93,9 +94,9 @@ const PaymentScreen: React.FC = () => {
                     msg: "",
                     consumidorFinal: true,
                     empId: idEmpresa,
-                    status: parseInt(antecipacao) === totalPrice ? 'F' : 'A',
+                    status: antecipacao === totalPrice ? 'F' : 'A',
                     pagamentos: [{
-                        valor: parseInt(antecipacao),
+                        valor: antecipacao,
                         formaPgto: paymentMethod,
                     }]
                 },
@@ -111,10 +112,11 @@ const PaymentScreen: React.FC = () => {
         try {
 
             const pixStatus = await checkPaymentStatusPix(pixData.txId);
+            console.log(JSON.stringify(pixStatus, undefined, 2));
             switch (pixStatus.statusCobranca) {
                 case 'concluida':
                     setPaymentStatus({ ...paymentStatus, concluida: pixStatus.statusCobranca });
-                    await handlePayment(parseInt(antecipacao), 'pgPix');
+                    await handlePayment(antecipacao, 'pgPix');
                     clearPaymentTimer();
                     break;
                 case 'canceladaPeloUsuario':
@@ -144,21 +146,21 @@ const PaymentScreen: React.FC = () => {
             if (!pixData.txId || hasExpired(pixData.expiracao)) {
 
                 const vendaIds = cartItems.map(item => item.vendaId);
-
                 if (vendaIds.length > 0) {
-                    const vedId: any = vendaIds[0].vendaId;
-
+                    const vedId: any = vendaIds[0];
+                    setVedId(vedId);
                     const pix: IPix = {
                         empId: parseInt(empId),
-                        valor: parseInt(antecipacao),
-                        nome: 'clientName',
-                        cpf: '02324185188',
+                        valor: antecipacao,
+                        nome: '',
+                        cpf: '',
                         idVenda: vedId,
-                    };
+                    };                   
 
                     const response: any = await generatePix(pix);
                     if (response && response.copiaECola) {
                         const { copiaECola, e2e, expiracao, txId } = response;
+                        console.log('copiaECola', copiaECola);
                         setPixData({
                             qrCode: copiaECola,
                             e2e: e2e,
@@ -218,7 +220,7 @@ const PaymentScreen: React.FC = () => {
                 <View style={styles.mainContent}>
                     <View style={styles.actionCard}>
                         <View style={styles.containerQrCode}>
-                            <Text style={styles.headerText}>Pague com Pix</Text>
+                            <Text style={styles.headerText}>Antecipação com Pix</Text>
                             <View style={styles.emptyView} />
                             {renderQRCode()}
                         </View>

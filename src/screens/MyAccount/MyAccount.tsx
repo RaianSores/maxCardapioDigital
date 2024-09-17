@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useRef, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import { IRequestAccount } from "../../@types/Venda";
 import showToast from "../../utils/ToastUtil";
 import { styles } from "./styles";
 import { getConfiguracoes } from "../../services/configService";
+import { FoodVendaContext } from "../../Context/FoodVendaContext";
 
 const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const {
@@ -44,6 +45,23 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const { fetchUserData } = useContext(CartContext);
   const [showModal, setShowModal] = useState(false);
+  const passwordInputRef = useRef<TextInput>(null);
+  const { foodVenda, consultarFoodMesa } = useContext(FoodVendaContext);
+
+  const pedidoConta = foodVenda?.[0]?.pediuConta !== 0;
+
+  const fetch = useCallback(async () => {
+    const mesa = await AsyncStorage.getItem("numMesa");
+    if (mesa) {
+      await consultarFoodMesa(parseInt(mesa));
+    }
+  }, [consultarFoodMesa]);
+
+  useEffect(() => {
+    if (showModal) {
+      passwordInputRef.current?.focus();
+    }
+  }, [showModal]);
 
   useEffect(() => {
     init();
@@ -52,6 +70,28 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   useEffect(() => {
     calcularTotais();
   }, [cartItems]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (pedidoConta) {
+      interval = setInterval(() => {
+        fetch();
+      }, 6000);
+    }
+
+    return () => clearInterval(interval);
+  }, [pedidoConta, fetch]); 
+
+  const formatCurrency = (value: string): number => {
+    let cleanValue = value.replace(/\D/g, "");
+    let formattedValue = Number(cleanValue) / 100;
+    return formattedValue;
+  };
+
+  const handleChangeText = (value: string) => {
+    setAntecipacao(formatCurrency(value));
+  };
 
   async function init() {
     setIsLoading(true);
@@ -79,17 +119,16 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     try {
       fetchUserData();
       const idVendedor = await AsyncStorage.getItem("idVendedor");
+      const numMesa = await AsyncStorage.getItem("numMesa");
       const foodVenda: IRequestAccount = {
-        numero: numeroMesa!,
+        numero: parseInt(numMesa!),
         tipo: 'M',
         atendente: parseInt(idVendedor!),
       };
 
       await solicitarConta(foodVenda);
       showToast("Conta solicitada com sucesso!", 'success');
-      setTimeout(async () => {
-        await navigation.navigate('Home');
-      }, 1800);
+      await fetch();
     } catch (error) {
       showToast("Erro ao solicitar conta!", 'error');
     }
@@ -105,7 +144,7 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const closeModal = () => {
     setShowModal(false);
-    if (showModal && antecipacao !== '') {
+    if (showModal && antecipacao !== 0) {
       handlePaymentClick();
     }
   }
@@ -142,13 +181,13 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <Text style={styles.regTable}>{item.descricaoProd}</Text>
           </View>
           <View style={styles.tableColRigth}>
-            <Text style={styles.regTable}>{formatPrice(item.valorTotal)}</Text>
+            <Text style={styles.regTable}>{(item.valorTotal)}</Text>
           </View>
           <View style={styles.tableColRigth}>
             <Text style={styles.regTable}>x {item.qtde}</Text>
           </View>
           <View style={styles.tableColRigth}>
-            <Text style={styles.regTable}>{formatPrice(item.valorLiquido)}</Text>
+            <Text style={styles.regTable}>{(item.valorLiquido)}</Text>
           </View>
         </View>
       </>
@@ -159,10 +198,14 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <Modal visible={showModal} animationType="fade" transparent={true}>
       <View style={styles.ModalContainer}>
         <View style={styles.ModalContent}>
-          <Text style={styles.ModalText}>Informe o Valor da Antecipação</Text>
+          <Text style={styles.ModalText}>Valor Antecipação</Text>
           <TextInput
-            value={antecipacao}
-            onChangeText={setAntecipacao}
+            ref={passwordInputRef}
+            value={antecipacao.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).replace("R$", "")}
+            onChangeText={handleChangeText}
             maxLength={14}
             keyboardType="numeric"
             placeholder="0,00"
@@ -178,7 +221,7 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <View style={styles.ModalContainerButton}>
             <View style={styles.ModalButtonCancelar}>
               <TouchableOpacity onPress={() => {
-                setAntecipacao('');
+                setAntecipacao(0);
                 closeModal();
               }}>
                 <Text style={styles.ModalTextButton}>Cancelar</Text>
@@ -198,13 +241,16 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={pedidoConta ? styles.containerConta : styles.container}>
         <Header />
         <View style={styles.actionCardHeader}>
           <Text style={styles.actionCardHeaderTitle}>Minha Conta | </Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.actionCardBack}>Voltar</Text>
-          </TouchableOpacity>
+          {!pedidoConta &&
+            (<TouchableOpacity onPress={() => navigation.goBack()}>
+              <Text style={styles.actionCardBack}>Voltar</Text>
+            </TouchableOpacity>)
+          }
+
         </View>
 
         {isLoading ? (
@@ -220,10 +266,7 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <View style={styles.mainContent}>
             <View style={styles.actionCard}>
               <View style={styles.actionCardHeaderList}>
-              <View style={[
-                  styles.tableColLeft,
-                  styles.actionCardInvoiceTableTitle,
-                ]}>
+                <View style={styles.tableColLeft}>
                   <Text style={styles.regTable}>Descrição</Text>
                 </View>
                 <View style={styles.tableColRigth}>
@@ -236,6 +279,7 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                   <Text style={styles.regTable}>Vlr Total</Text>
                 </View>
               </View>
+
               {cartItems.length > 0 ? (
                 <FlashList
                   data={cartItems}
@@ -249,10 +293,11 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                   contentContainerStyle={styles.flashListContentContainer}
                 />
               ) : (
-                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                  <Text style={{ fontSize: 34, fontWeight: "bold", color: "#46423F" }}>Mesa vázia!</Text>
-                </View>
+                <>
+
+                </>
               )}
+
             </View>
 
             <View style={styles.actionPrice}>
@@ -274,19 +319,22 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 <Text style={styles.price}>{formatPrice(totalFinal)}</Text>
               </View>
 
-
-              <View style={styles.containerBottom}>
-                {temContaMaxDigital && (
-                  <TouchableOpacity onPress={openModal} style={styles.btnSecondary}>
-                    <Icon name="qrcode" size={30} color="#fff" />
-                    <Text style={styles.btnText}>Antecipar PIX</Text>
-                  </TouchableOpacity>
+              {!pedidoConta &&
+                (
+                  <View style={styles.containerBottom}>
+                    {temContaMaxDigital && (
+                      <TouchableOpacity onPress={openModal} style={styles.btnSecondary}>
+                        <Icon name="qrcode" size={30} color="#fff" />
+                        <Text style={styles.btnText}>Antecipar PIX</Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity onPress={solicitaContaClick} style={styles.btnPrimary}>
+                      <Icons.CheckSquare strokeWidth={3} height={30} width={30} stroke="#FFF" />
+                      <Text style={styles.btnText}>Pedir Conta</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
-                <TouchableOpacity onPress={solicitaContaClick} style={styles.btnPrimary}>
-                  <Icons.CheckSquare strokeWidth={3} height={30} width={30} stroke="#FFF" />
-                  <Text style={styles.btnText}>Pedir Conta</Text>
-                </TouchableOpacity>
-              </View>
+
             </View>
           </View>
         )}

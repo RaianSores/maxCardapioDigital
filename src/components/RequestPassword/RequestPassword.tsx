@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     Modal,
     View,
@@ -29,6 +29,13 @@ const RequestPassword: React.FC<RequestPasswordProps> = ({
     correctPassword,
 }) => {
     const [password, setPassword] = useState("");
+    const passwordInputRef = useRef<TextInput>(null);
+
+    useEffect(() => {
+        if (visible) {
+            passwordInputRef.current?.focus();
+        }
+    }, [visible]);
 
     const handleConfirm = () => {
         if (password === correctPassword) {
@@ -44,6 +51,7 @@ const RequestPassword: React.FC<RequestPasswordProps> = ({
                 <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>{title}</Text>
                     <TextInput
+                        ref={passwordInputRef}
                         style={styles.input}
                         placeholder="Digite sua senha"
                         secureTextEntry={true}

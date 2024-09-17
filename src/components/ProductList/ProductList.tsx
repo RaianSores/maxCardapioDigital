@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, RefreshControl, SafeAreaView } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { RefreshControl, SafeAreaView } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import LottieView from 'lottie-react-native';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import ProductSection from "../ProductSection/ProductSection";
 import { getProdutos, getProdutosPromocoes } from "../../services/produtoService";
 import { Produto } from "../../@types/Produto";
 import showToast from "../../utils/ToastUtil";
+import { FoodVendaContext } from "../../Context/FoodVendaContext";
+import { styles } from "./styles";
 
 interface ProductListProps {
   selectedGroupId: number;
@@ -16,9 +17,19 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  useEffect(() => {    
-    selectedGroupId === 10000 ? fetchProdutosPromocoes() : fetchProdutos();
+  const { consultarFoodMesa, foodVenda } = useContext(FoodVendaContext);
+
+  const pedidoConta = foodVenda?.[0]?.pediuConta !== 0;
+
+  useEffect(() => {
+    if (selectedGroupId === 10000) {
+      fetchProdutosPromocoes()
+    } else if (selectedGroupId === 10001) {
+      fetchProdutosHome()
+    } else {
+      fetchProdutos()
+    }
+
   }, [selectedGroupId]);
 
   const fetchProdutos = async () => {
@@ -26,6 +37,22 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
     setIsLoading(true);
     try {
       const produtosData = await getProdutos(selectedGroupId);
+      setProdutos(produtosData);
+    } catch (error) {
+      showToast("Erro ao buscar produtos!", 'error');
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+        setIsLoading(false);
+      }, 780);
+    }
+  };
+
+  const fetchProdutosHome = async () => {
+    setRefreshing(true);
+    setIsLoading(true);
+    try {
+      const produtosData = await getProdutos(0);
       setProdutos(produtosData);
     } catch (error) {
       showToast("Erro ao buscar produtos!", 'error');
@@ -54,7 +81,11 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
   };
 
   return (
-    <SafeAreaView style={styles.productListContainer}>
+    <SafeAreaView style={
+      pedidoConta
+        ? styles.productListContainerConta
+        : styles.productListContainer
+    }>
       {isLoading ? (
         <LottieView
           source={require("../../lottie/MaxData.json")}
@@ -70,24 +101,16 @@ const ProductList: React.FC<ProductListProps> = ({ selectedGroupId }) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchProdutos} />
           }
-          estimatedItemSize={20} // Tamanho estimado de cada item para melhor performance
-          contentContainerStyle={styles.flashListContentContainer}
+          estimatedItemSize={20}
+          contentContainerStyle={
+            pedidoConta
+              ? styles.flashListContentContainerConta
+              : styles.flashListContentContainer
+          }
         />
       )}
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  productListContainer: {
-    flex: 1,
-    backgroundColor: '#3E3E3E',
-  },
-  flashListContentContainer: {
-    padding: 10,
-    paddingLeft: 0,
-    backgroundColor: '#3E3E3E',
-  },
-});
 
 export default ProductList;

@@ -68,3 +68,21 @@ export const finalizaFoodVenda = async (venda: Venda): Promise<Venda> => {
     throw error;
   }
 };
+
+export const consultarFoodVendaMesa = async (
+  numMesa: number,
+): Promise<Venda[]> => {
+  try {
+    const response = await api.get(
+      `/food/venda/consultar?numero=${numMesa}`,
+      {},
+    );
+    if (response && response.status === 200) {
+      return response.data as Venda[];
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error) {
+    throw error;
+  }
+};

@@ -1,6 +1,6 @@
 {
   "name": "maxCardapioDigital",
-  "version": "2.150.170.3",
+  "version": "2.150.177.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

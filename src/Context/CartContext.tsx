@@ -28,18 +28,18 @@ interface ICartContextData {
     setNumMesa: React.Dispatch<React.SetStateAction<string>>;
     fetchCartItemCount: () => void;
     fetchNumMesa: () => void;
-    empId: string; 
+    empId: string;
     setEmpId: React.Dispatch<React.SetStateAction<string>>;
-    atendente: number; 
+    atendente: number;
     setAtendente: React.Dispatch<React.SetStateAction<number>>;
     fetchUserData: () => void;
-    antecipacao: string; 
-    setAntecipacao: React.Dispatch<React.SetStateAction<string>>;
-    taxaServico: number; 
+    antecipacao: number;
+    setAntecipacao: React.Dispatch<React.SetStateAction<number>>;
+    taxaServico: number;
     setTaxaServico: React.Dispatch<React.SetStateAction<number>>;
-    desconto: number;  
+    desconto: number;
     setDesconto: React.Dispatch<React.SetStateAction<number>>;
-    temContaMaxDigital: boolean; 
+    temContaMaxDigital: boolean;
     setTemContaMaxDigital: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -58,7 +58,7 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
     const [numMesa, setNumMesa] = useState('');
     const [empId, setEmpId] = useState('');
     const [atendente, setAtendente] = useState(0);
-    const [antecipacao, setAntecipacao] = useState('');
+    const [antecipacao, setAntecipacao] = useState<number>(0);
     const [temContaMaxDigital, setTemContaMaxDigital] = useState(false);
 
     function calcularTotais() {
@@ -73,18 +73,18 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
             desconto += item.desconto;
             servico += item.vlrOutrasDesp;
         });
-            
+
         setTotalPedido(pedido);
         setTotalFinal(final);
         setDesconto(desconto);
         setTotalServico(servico);
-    } 
+    }
 
     async function fetchNumeroMesa() {
         try {
             const mesa = await AsyncStorage.getItem("numMesa");
             if (mesa !== null) {
-                setNumeroMesa(parseInt(mesa)); 
+                setNumeroMesa(parseInt(mesa));
             } else {
                 showToast("Número da mesa não encontrado no AsyncStorage!", 'error');
             }
@@ -96,7 +96,6 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
     async function fetchCartItems(numeroMesa: number) {
         try {
             const items = await getItemsMesa(numeroMesa);
-    
             if (items.length === 0) {
                 setCartItems([]);
             } else {
@@ -106,7 +105,8 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
             showToast("Erro ao carregar itens da mesa!", 'error');
         }
     }
-    
+
+
     const fetchCartItemCount = async () => {
         const itemCount = await getCartItemCount();
         setCartItemCount(itemCount);
@@ -125,18 +125,18 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
 
     const fetchUserData = async () => {
         try {
-          const empId = await AsyncStorage.getItem("empId");
-          const operador = await AsyncStorage.getItem("atendente");
-    
-          setNumMesa(numMesa || "");
-          setEmpId(empId || "1");
-          if (operador) {
-              setAtendente(parseInt(operador));
-          }
+            const empId = await AsyncStorage.getItem("empId");
+            const operador = await AsyncStorage.getItem("atendente");
+
+            setNumMesa(numMesa || "");
+            setEmpId(empId || "1");
+            if (operador) {
+                setAtendente(parseInt(operador));
+            }
         } catch (error) {
-          showToast("Erro ao carregar dados do usuário/atendente!", 'error');
+            showToast("Erro ao carregar dados do usuário/atendente!", 'error');
         }
-      };
+    };
 
     return (
         <CartContext.Provider
@@ -164,13 +164,13 @@ export const CartProvider = ({ children }: ICartProviderProps) => {
                 atendente,
                 setAtendente,
                 fetchUserData,
-                antecipacao, 
+                antecipacao,
                 setAntecipacao,
-                temContaMaxDigital, 
+                temContaMaxDigital,
                 setTemContaMaxDigital,
-                taxaServico, 
+                taxaServico,
                 setTaxaServico,
-                desconto, 
+                desconto,
                 setDesconto
             }}
         >

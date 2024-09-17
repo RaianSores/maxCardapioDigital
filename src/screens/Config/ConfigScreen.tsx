@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,
   Text,
@@ -17,6 +17,7 @@ import DeviceInfo from 'react-native-device-info';
 import LottieView from 'lottie-react-native';
 import showToast from "../../utils/ToastUtil";
 import { styles } from "./styles";
+import { CorporationContext } from "../../Context/CorporationContext";
 
 function Config({ navigation }: any) {
   const [ipUrl, setIpUrl] = useState("");
@@ -25,22 +26,7 @@ function Config({ navigation }: any) {
   const [idVendedor, setIdVendedor] = useState("");
   const [numMesa, setNumMesa] = useState("");
   const [loading, setLoading] = useState(false);
-  const [empresaData, setEmpresaData] = useState<any[]>([]);
-
-  const fetchEmpresaData = async () => {
-    try {
-      const response = await axios.get(
-        `http://${ipUrl}:${porta}/v1/public/empresa/consultar`
-      );
-      if (response.data && response.data.length > 0) {
-        setEmpresaData(response.data);
-      } else {
-        showToast("Dados da empresa não encontrados!", 'error');
-      }
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível carregar os dados da empresa. Verifique a conexão e tente novamente.");
-    }
-  };
+  const { fetchEmpresaData, empresaData } = useContext(CorporationContext);
 
   const fetchItems = async () => {
     try {

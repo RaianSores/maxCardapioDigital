@@ -1,11 +1,12 @@
-import React, { useEffect, useState, } from "react";
+import React, { useContext, useEffect, useState, } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import * as Icons from 'react-native-feather';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { getGrupos } from "../../services/grupoService";
 import { Grupo } from "../../@types/Grupo";
 import showToast from "../../utils/ToastUtil";
+import { styles } from "./styles";
+import { FoodVendaContext } from "../../Context/FoodVendaContext";
 
 interface MenuProps {
   onGrupoSelect: (groupId: number) => void;
@@ -13,6 +14,9 @@ interface MenuProps {
 
 const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
   const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const { foodVenda } = useContext(FoodVendaContext);
+
+  const pedidoConta = foodVenda?.[0]?.pediuConta !== 0;
 
   useEffect(() => {
     fetchGrupos();
@@ -30,6 +34,8 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
   const handleGrupoSelect = (groupId: number) => {
     if (groupId === 10000) {
       onGrupoSelect(10000);
+    } else if (groupId === 10001) {
+      onGrupoSelect(10001);
     } else {
       onGrupoSelect(groupId);
     }
@@ -55,7 +61,7 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
   );
 
   return (
-    <View style={styles.menu}>
+    <View style={[pedidoConta ? styles.menuConta : styles.menu]}>
       <TouchableOpacity
         onPress={() => handleGrupoSelect(10000)}
         style={[styles.menuListItem, styles.promotion]}
@@ -70,6 +76,20 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
           Promoções
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handleGrupoSelect(10001)}
+        style={[styles.menuListItem, styles.home]}
+      >
+        <Icons.Home
+          strokeWidth={2}
+          height={40}
+          width={40}
+          stroke="#46423F"
+        />
+        <Text style={[styles.menuListItemHome, styles.menuListItemHome]}>
+          HOME
+        </Text>
+      </TouchableOpacity>
       <FlashList
         data={grupos}
         renderItem={renderItem}
@@ -79,52 +99,5 @@ const Menu: React.FC<MenuProps> = ({ onGrupoSelect }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  menu: {
-    width: wp("25%"),
-    padding: wp("1%"),
-  },
-  menuTitle: {
-    fontSize: 20,
-    marginBottom: 18,
-    marginTop: 8,
-    color: "#B5A8A5",
-  },
-  menuListItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: wp("1%"),
-    backgroundColor: "#dddddd",
-    marginBottom: hp("1.5%"),
-    borderRadius: 5,
-  },
-  promotion: {
-    backgroundColor: "#ffa500",
-    marginTop: hp("5%"),
-  },
-  menuListItemPhoto: {
-    width: wp('4%'),
-    height: hp('8%'),
-    marginRight: wp("1%"),
-    borderRadius: 6,
-  },
-  promotionIcon: {
-    width: wp('4%'),
-    height: hp('8%'),
-    marginRight: wp("1%"),
-  },
-  menuListItemTitle: {
-    fontSize: wp("1.5%"),
-    fontWeight: "bold",
-    color: "#46423F",
-  },
-  menuListItemPromotion: {
-    fontSize: wp("1.7%"),
-    fontWeight: "bold",
-    color: "#FFF",
-    paddingLeft: wp("1%"),
-  },
-});
 
 export default Menu;

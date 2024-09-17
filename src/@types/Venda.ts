@@ -5,6 +5,7 @@ export interface Venda {
   operador: number;
   tipo: string;
   pediuConta?: number;
+  idVenda?: number;
   venda: {
     id?: number;
     clienteId: number;

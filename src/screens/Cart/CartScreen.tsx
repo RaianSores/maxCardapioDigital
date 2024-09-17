@@ -61,9 +61,9 @@ const CartScreen = ({ navigation }: any) => {
   async function enviaDadosVenda(vendaData: Venda) {
     try {
       await sendVenda(vendaData);
-      showToast("Dados da venda enviados com sucesso!", 'success');
+      showToast("Pedido enviado!", 'success');
     } catch (error) {
-      showToast("Erro ao enviar dados da venda!", 'error');
+      showToast("Erro ao enviar pedido!", 'error');
     } finally {
       setIsLoading(false); // Desativa o indicador de carregamento
     }
@@ -200,10 +200,7 @@ const CartScreen = ({ navigation }: any) => {
           ) : (
             <View style={styles.actionCard}>
               <View style={styles.actionCardHeaderList}>
-                <View style={[
-                  styles.tableColLeft,
-                  styles.actionCardInvoiceTableTitle,
-                ]}>
+                <View style={styles.tableColLeft}>
                   <Text style={styles.regTable}>Descrição</Text>
                 </View>
                 <View style={styles.tableColRigth}>
@@ -223,26 +220,17 @@ const CartScreen = ({ navigation }: any) => {
                 {cartItems.map((item: any, index) => (
                   <View key={index} style={styles.actionCardInvoiceTableRow}>
                     <View style={styles.tableCol}>{renderItemImage(item)}</View> 
-                    <View
-                      style={[
-                        styles.tableColLeft,
-                        styles.actionCardInvoiceTableTitle,
-                      ]}
-                    >
+                    <View  style={[styles.tableColLeft, styles.actionCardInvoiceTableTitle]}>
                       <Text style={styles.regTable}>{item.description}</Text>
                     </View>
                     <View style={styles.tableColRigth}>
-                      <Text style={styles.regTable}>
-                        {formatPrice(item.price)}
-                      </Text>
+                      <Text style={styles.regTable}>{formatPrice(item.price)}</Text>
                     </View>
                     <View style={styles.tableColRigth}>
                       <Text style={styles.regTable}>x {item.quantity}</Text>
                     </View>
                     <View style={styles.tableColRigth}>
-                      <Text style={styles.regTable}>
-                        {formatPrice(item.price * item.quantity)}
-                      </Text>
+                      <Text style={styles.regTable}>{formatPrice(item.price * item.quantity)}</Text>
                     </View>
                   </View>
                 ))}

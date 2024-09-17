@@ -15,7 +15,6 @@ const RenderOptions = ({ item }: { item: IProdutosOptions }) => {
     const items = [{ id: item.foId.toString(), text: item.foDescricao, }];
 
     const toggleOption = (item: IProdutosOptions) => {
-        console.log(optionsData)
         if (optionsData) {
             item.isSelected = !item.isSelected
             setOptionsData([...optionsData])

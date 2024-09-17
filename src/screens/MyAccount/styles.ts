@@ -10,6 +10,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#3E3E3E',
   },
+  containerConta: {
+    flex: 1,
+    backgroundColor: '#740c0c',
+  },
   actionCardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -51,7 +55,7 @@ export const styles = StyleSheet.create({
     zIndex: 10,
   },
   listContent: {
-    paddingTop: 50, // Deixar espaço para o header fixo
+    paddingTop: 50,
     flex: 1,
   },
   actionPrice: {
@@ -71,7 +75,11 @@ export const styles = StyleSheet.create({
     fontSize: FONTSIZE.size_18,
     fontWeight: 'bold',
     color: '#363539',
-    marginLeft: hp('1%'),
+  },
+  regVlrUn: {
+    fontSize: FONTSIZE.size_18,
+    fontWeight: 'bold',
+    color: '#363539',
   },
   emptyCartImage: {
     width: hp('40%'),
@@ -98,7 +106,7 @@ export const styles = StyleSheet.create({
     marginLeft: hp('1%'),
   },
   tableColLeft: {
-    flex: 1,
+    flex: 1.5,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
