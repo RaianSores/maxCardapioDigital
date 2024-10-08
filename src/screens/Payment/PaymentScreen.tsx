@@ -67,6 +67,7 @@ const PaymentScreen: React.FC = () => {
         }
         return () => clearPaymentTimer();
     }, [pixData.txId]);
+    
 
     function clearPaymentTimer() {
         if (paymentTimer) {

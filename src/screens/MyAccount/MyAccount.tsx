@@ -213,21 +213,23 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               fontSize: 30,
               color: '#FFF',
               alignItems: 'center',
-              textAlign: 'center',
+              textAlign: 'right',
               justifyContent: 'center',
             }}
           />
-
+  
           <View style={styles.ModalContainerButton}>
             <View style={styles.ModalButtonCancelar}>
-              <TouchableOpacity onPress={() => {
-                setAntecipacao(0);
-                closeModal();
-              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setAntecipacao(0);
+                  closeModal();
+                }}
+              >
                 <Text style={styles.ModalTextButton}>Cancelar</Text>
               </TouchableOpacity>
             </View>
-
+  
             <View style={styles.ModalButtonConfirmar}>
               <TouchableOpacity onPress={closeModal}>
                 <Text style={styles.ModalTextButton}>Confirmar</Text>
@@ -238,6 +240,7 @@ const MyAccountScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       </View>
     </Modal>
   );
+  
 
   return (
     <>

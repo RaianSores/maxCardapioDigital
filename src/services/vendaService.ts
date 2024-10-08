@@ -33,6 +33,7 @@ export const solicitarConta = async (
 export const generatePix = async (pix: IPix): Promise<IPix> => {
   try {
     const response = await api.post(`/financeiro/pix/gerar`, pix);
+    console.log('generatePix TxId',JSON.stringify(response, undefined, 2))
     if (response.status === 200) {
       return response.data;
     } else {
@@ -46,6 +47,7 @@ export const generatePix = async (pix: IPix): Promise<IPix> => {
 export const checkPaymentStatusPix = async (TxId: string): Promise<any> => {
   try {
     const response = await api.get(`/financeiro/pix/consultar/${TxId}`);
+    console.log('checkPaymentStatusPix TxId',TxId)
     if (response.status === 200) {
       return response.data;
     } else {
